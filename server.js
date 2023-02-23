@@ -9,11 +9,13 @@ require("dotenv").config();
 
 const app = express();
 app.use(cors());
+app.use(express.json());
 const PORT = process.env.PORT;
 
 app.get("/productsapi", productsHandler);
 app.get("/productsDB", databaseHandler);
 app.get("/productsDB/:id", databaseIDHandler);
+app.post("/product", addDatabaseHandler);
 
 mongoose.connect("mongodb://127.0.0.1:27017/makeup");
 
@@ -80,6 +82,25 @@ async function databaseIDHandler(req, res) {
   const id = req.params.id;
   const product = await productModel.findById(id);
   res.send(product);
+}
+
+async function addDatabaseHandler(req, res) {
+  console.log(req.body);
+
+  const nameInput = req.body.name;
+  const brandInput = req.body.brand;
+  const priceInput = req.body.price;
+  const imageUrlInput = req.body.imageUrl;
+  const descriptionInput = req.body.description;
+
+  let newMakeup = await productModel.create({
+    name: nameInput,
+    brand: brandInput,
+    price: priceInput,
+    imageUrl: imageUrlInput,
+    description: descriptionInput,
+  });
+  res.send(newMakeup);
 }
 
 app.listen(PORT, () => {
